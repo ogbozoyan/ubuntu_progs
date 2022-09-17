@@ -1,0 +1,4 @@
+nasm -felf64 name.asm
+ld -o name_to_save name_with_.o
+./name - to execute 
+
