@@ -1,0 +1,4 @@
+gcc название.c -shared -fPIC -o ld_название.so
+
+
+

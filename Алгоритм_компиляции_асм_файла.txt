@@ -1,0 +1,22 @@
+Алгоритм компиляции асм файла
+
+1.nasm -f elf  hello.asm
+2.ld -m elf_i386 -o hello hello.o
+3. ./hello
+
+1.nasm -f elf32 hello.asm
+2.ld -m elf_i386 hello.o -o hello
+3./hello 
+
+1.nasm -f elf -o hello.o hello.asm
+2.ld -m elf_i386 -o hello hello.o
+3../hello
+
+Можно добавить по желанию
+
+SYS_EXIT  equ 1
+SYS_READ  equ 3
+SYS_WRITE equ 4
+STDIN     equ 0
+STDOUT    equ 1
+
