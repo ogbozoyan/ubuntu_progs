@@ -1,0 +1,24 @@
+{
+    "name":"/",
+    "mode":"dir",
+    "items":{
+        "1.txt":{
+            "name": "1.txt",
+            "mode": "reg",
+            "data": "Hello, world"
+        },
+        "dir":{
+            "name": "dir",
+            "mode": "dir",
+            "items": {
+                "2.txt":{
+                    "name": "2.txt",
+                    "mode": "reg",
+                    "data": "Goodbey, world"
+                }
+            }
+            
+        }
+    }
+}
+

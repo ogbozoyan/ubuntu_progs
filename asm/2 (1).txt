@@ -1,0 +1,79 @@
+section .bss
+	fd resb 4
+	buffer1 resb 100
+	buffer2 resb 100
+	len1 resb 4
+	len2 resb 4
+
+section .text
+	global _start
+_start:
+
+pop ebx ;argc
+pop ebx ;argv[0] prog name
+
+mov eax, 5 ;fopen
+pop ebx ;argv[1] file#1
+mov ecx, 0 ; Readonly
+mov edx, 420
+int 0x80
+
+mov [fd], eax ;save disc
+
+mov eax, 3 ;read from file
+mov ebx, [fd]
+mov ecx, buffer1 ; in buffer
+mov edx, 100 ;100 bytes
+int 0x80
+
+mov [len1], eax ; value of bytes been readed
+
+mov eax, 6 ; close file#1
+mov ebx, [fd]
+int 0x80
+
+mov eax, 5
+pop ebx ;argv[2] ;file#2
+mov ecx, 0
+mov edx, 420
+int 0x80
+
+mov [fd], eax
+
+mov eax, 3
+mov ebx, [fd]
+mov ecx, buffer2
+mov edx, 100
+int 0x80
+
+mov [len2], eax
+
+mov eax, 6
+mov ebx, [fd]
+int 0x80
+
+mov eax, 5
+pop ebx ;argv[3];Fiel#3
+mov ecx, 1 ;Write to File#3 
+mov edx, 420
+int 0x80
+
+mov eax, 4
+mov ebx, [fd]
+mov ecx, buffer1
+mov edx, [len1] ; 
+int 0x80
+
+mov eax, 4
+mov ebx, [fd]
+mov ecx, buffer2
+mov edx, [len2]
+int 0x80
+
+mov eax, 6
+mov ebx, [fd]
+int 0x80
+
+mov eax, 1
+int 0x80
+
