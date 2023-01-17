@@ -2,14 +2,9 @@ import os
 import mmap
 
 def xor(opentext,key):
-    cipname = ''
-    
-    for i in range(len(opentext)):
-        a = opentext[i]
-        b = key[0:1]
-        cipname += chr(ord(a) ^ ord(b))
-
-    return (cipname)
+    return ''.join(
+        chr(ord(opentext[i]) ^ ord(key[:1])) for i in range(len(opentext))
+    )
 
 opentext = "Bozoyan Oganes KKSO-03-20"
 key = input('Enter password: ')

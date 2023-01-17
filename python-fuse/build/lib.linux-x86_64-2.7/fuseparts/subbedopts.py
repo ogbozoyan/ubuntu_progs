@@ -29,10 +29,7 @@ class SubOptsHive(object):
 
     def _str_core(self):
 
-        sa = []
-        for k, v in self.optdict.items():
-             sa.append(str(k) + '=' + str(v))
-
+        sa = [f'{str(k)}={str(v)}' for k, v in self.optdict.items()]
         ra = (list(self.optlist) + sa) or ["(none)"]
         ra.sort()
         return ra 
@@ -80,9 +77,7 @@ class SubOptsHive(object):
 
         ov = opt.split('=', 1)
         o = ov[0]
-        v = len(ov) > 1 and ov[1] or None
-
-        if (v):
+        if v := len(ov) > 1 and ov[1] or None:
             if val != None:
                 raise AttributeError("ambiguous option value")
             val = v
@@ -124,7 +119,7 @@ class SubbedOpt(Option):
     def __str__(self):
         pf = ""
         if hasattr(self, "subopt") and self.subopt:
-            pf = " %s...,%s,..." % (self.baseopt, self.subopt)
+            pf = f" {self.baseopt}...,{self.subopt},..."
         return Option.__str__(self) + pf
 
     def _check_opt_strings(self, opts):
@@ -135,25 +130,22 @@ class SubbedOpt(Option):
             Option._check_dest(self)
         except IndexError:
             if self.subopt:
-                self.dest = "__%s__%s" % (self.baseopt, self.subopt)
+                self.dest = f"__{self.baseopt}__{self.subopt}"
                 self.dest = self.dest.replace("-", "")
             else:
                 raise
 
     def get_opt_string(self):
-        if hasattr(self, 'subopt'):
-            return self.subopt
-        else:
-            return Option.get_opt_string(self)
+        return self.subopt if hasattr(self, 'subopt') else Option.get_opt_string(self)
 
     def take_action(self, action, dest, opt, value, values, parser):
         if action == "store_hive":
-            if not hasattr(values, dest) or getattr(values, dest) == None:
-                 if hasattr(self, "subopts_hive") and self.subopts_hive:
-                     hive = self.subopts_hive
-                 else:
-                     hive = parser.hive_class()
-                 setattr(values, dest, hive)
+            if not hasattr(values, dest) or getattr(values, dest) is None:
+                if hasattr(self, "subopts_hive") and self.subopts_hive:
+                    hive = self.subopts_hive
+                else:
+                    hive = parser.hive_class()
+                setattr(values, dest, hive)
             for o in value.split(self.subsep or ","):
                 oo = o.split('=')
                 ok = oo[0]
@@ -172,8 +164,8 @@ class SubbedOpt(Option):
 
         if o.subopt in self.subopt_map:
             raise OptionConflictError(
-              "conflicting suboption handlers for `%s'" % o.subopt,
-              o)
+                f"conflicting suboption handlers for `{o.subopt}'", o
+            )
         self.subopt_map[o.subopt] = o
 
     CHECK_METHODS = []
@@ -189,7 +181,7 @@ class SubbedOptFormatter(HelpFormatter):
 
     def format_option_strings(self, option):
         if hasattr(option, "subopt") and option.subopt:
-            res = '-o ' + option.subopt
+            res = f'-o {option.subopt}'
             if option.takes_value():
                 res += "="
                 res += option.metavar or 'FOO'
@@ -228,23 +220,19 @@ class SubbedOptParse(OptionParser):
 
     def __init__(self, *args, **kw):
 
-         if not 'formatter' in kw:
-             kw['formatter'] = SubbedOptIndentedFormatter()
-         if not 'option_class' in kw:
-             kw['option_class'] = SubbedOpt
-         if 'hive_class' in kw:
-             self.hive_class = kw.pop('hive_class')
-         else:
-             self.hive_class = SubOptsHive
-
-         OptionParser.__init__(self, *args, **kw)
+        if 'formatter' not in kw:
+            kw['formatter'] = SubbedOptIndentedFormatter()
+        if 'option_class' not in kw:
+            kw['option_class'] = SubbedOpt
+        self.hive_class = kw.pop('hive_class') if 'hive_class' in kw else SubOptsHive
+        OptionParser.__init__(self, *args, **kw)
 
     def add_option(self, *args, **kwargs):
         if 'action' in kwargs and kwargs['action'] == 'store_hive':
             if 'subopt' in kwargs:
                 raise OptParseError(
                   """option can't have a `subopt' attr and `action="store_hive"' at the same time""")
-            if not 'type' in kwargs:
+            if 'type' not in kwargs:
                 kwargs['type'] = 'string'
         elif 'subopt' in kwargs:
             o = self.option_class(*args, **kwargs)

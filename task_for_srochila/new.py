@@ -11,25 +11,20 @@ class Stack:
     def push(self, item):
         self.stack.append(item)
     def pop(self):
-        if len(self.stack) == 0:
-            return None
-        removed = self.stack.pop()
-        return removed
+        return None if len(self.stack) == 0 else self.stack.pop()
 
 def read_file(file):
     f1 = []
     with open(file, encoding='utf-8') as r_file:
-    
+
         file_reader = csv.reader(r_file, delimiter = ",")
-        for row in file_reader:
-            f1.append(row[1])
+        f1.extend(row[1] for row in file_reader)
     return f1
 
 def randomstroka():
     f1 = []
     f2 = []
     tmp = 0
-    buf = []
     f1,f2 = read_file("test.csv"),read_file("train.csv")
 
     randomfile = random.randint(1,2)
@@ -41,9 +36,7 @@ def randomstroka():
         tmp = 2
     nomer = random.randint(0,len(f1))
 
-    buf.append(randomfile[nomer])
-    buf.append(str(tmp))
-    return buf
+    return [randomfile[nomer], str(tmp)]
 
 @bot.message_handler(commands=["start"])
 

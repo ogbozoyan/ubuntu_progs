@@ -54,8 +54,9 @@ def __getenv__(var, pattern = '.', trans = lambda x: x):
     if not isinstance(rpat, type(re.compile(''))):
         rpat = re.compile(rpat)
     if not rpat.search(val):
-        raise RuntimeError("env var %s doesn't match required pattern %s" % \
-                           (var, repr(pattern)))
+        raise RuntimeError(
+            f"env var {var} doesn't match required pattern {repr(pattern)}"
+        )
     return trans(val)
 
 def get_fuse_python_api():
@@ -69,8 +70,11 @@ def get_compat_0_1():
     return get_fuse_python_api() == (0, 1)
 
 # API version to be used
-fuse_python_api = __getenv__('FUSE_PYTHON_API', '^[\d.]+$',
-                              lambda x: tuple([int(i) for i in x.split('.')]))
+fuse_python_api = __getenv__(
+    'FUSE_PYTHON_API',
+    '^[\d.]+$',
+    lambda x: tuple(int(i) for i in x.split('.')),
+)
 
 # deprecated way of API specification
 compat_0_1 = __getenv__('FUSE_PYTHON_COMPAT', '^(0.1|ALL)$', lambda x: True)
@@ -98,17 +102,21 @@ class FuseArgs(SubOptsHive):
 
         SubOptsHive.__init__(self)
 
-        self.modifiers = {}
         self.mountpoint = None
 
-        for m in self.fuse_modifiers:
-            self.modifiers[m] = False
+        self.modifiers = {m: False for m in self.fuse_modifiers}
 
     def __str__(self):
-        return '\n'.join(['< on ' + str(self.mountpoint) + ':',
-                          '  ' + str(self.modifiers), '  -o ']) + \
-               ',\n     '.join(self._str_core()) + \
-               ' >'
+        return (
+            '\n'.join(
+                [
+                    f'< on {str(self.mountpoint)}:',
+                    f'  {str(self.modifiers)}',
+                    '  -o ',
+                ]
+            )
+            + ',\n     '.join(self._str_core())
+        ) + ' >'
 
     def getmod(self, mod):
         return self.modifiers[mod]
@@ -120,11 +128,7 @@ class FuseArgs(SubOptsHive):
         self.modifiers[mod] = False
 
     def mount_expected(self):
-        if self.getmod('showhelp'):
-            return False
-        if self.getmod('showversion'):
-            return False
-        return True
+        return False if self.getmod('showhelp') else not self.getmod('showversion')
 
     def assemble(self):
         """Mangle self into an argument array"""
@@ -133,13 +137,8 @@ class FuseArgs(SubOptsHive):
         args = [sys.argv and sys.argv[0] or "python"]
         if self.mountpoint:
             args.append(self.mountpoint)
-        for m, v in self.modifiers.items():
-            if v:
-                args.append(self.fuse_modifiers[m])
-
-        opta = []
-        for o, v in self.optdict.items():
-                opta.append(o + '=' + v)
+        args.extend(self.fuse_modifiers[m] for m, v in self.modifiers.items() if v)
+        opta = [f'{o}={v}' for o, v in self.optdict.items()]
         opta.extend(self.optlist)
 
         if opta:
@@ -164,7 +163,7 @@ class FuseArgs(SubOptsHive):
 class FuseFormatter(SubbedOptIndentedFormatter):
 
     def __init__(self, **kw):
-        if not 'indent_increment' in kw:
+        if 'indent_increment' not in kw:
             kw['indent_increment'] = 4
         SubbedOptIndentedFormatter.__init__(self, **kw)
 
@@ -247,19 +246,13 @@ class FuseOptParse(SubbedOptParse):
         self.mountopts = []
 
         self.fuse_args = \
-            'fuse_args' in kw and kw.pop('fuse_args') or FuseArgs()
+                'fuse_args' in kw and kw.pop('fuse_args') or FuseArgs()
         dsd = 'dash_s_do' in kw and kw.pop('dash_s_do') or 'whine'
-        if 'fetch_mp' in kw:
-            self.fetch_mp = bool(kw.pop('fetch_mp'))
-        else:
-            self.fetch_mp = True
-        if 'standard_mods' in kw:
-            smods = bool(kw.pop('standard_mods'))
-        else:
-            smods = True
+        self.fetch_mp = bool(kw.pop('fetch_mp')) if 'fetch_mp' in kw else True
+        smods = bool(kw.pop('standard_mods')) if 'standard_mods' in kw else True
         if 'fuse' in kw:
             self.fuse = kw.pop('fuse')
-        if not 'formatter' in kw:
+        if 'formatter' not in kw:
             kw['formatter'] = FuseFormatter()
         doh = 'dash_o_handler' in kw and kw.pop('dash_o_handler')
 
@@ -299,7 +292,7 @@ class FuseOptParse(SubbedOptParse):
         elif dsd == 'undef':
             dsdcb = None
         else:
-            raise ArgumentError("key `dash_s_do': uninterpreted value " + str(dsd))
+            raise ArgumentError(f"key `dash_s_do': uninterpreted value {str(dsd)}")
 
         if dsdcb:
             self.add_option('-s', action='callback', callback=dsdcb,
@@ -335,7 +328,7 @@ class FuseOptParse(SubbedOptParse):
                   "having options or specifying the `subopt' attribute conflicts with `mountopt' attribute")
             opts = ('-o',)
             attrs['subopt'] = attrs.pop('mountopt')
-            if not 'dest' in attrs:
+            if 'dest' not in attrs:
                 attrs['dest'] = attrs['subopt']
 
         SubbedOptParse.add_option(self, *opts, **attrs)
@@ -565,9 +558,8 @@ def feature_needs(*feas):
             if isinstance(fp, int):
                 maxva[0] = max(maxva[0], fp)
                 continue
-            if isinstance(fp, list) or isinstance(fp, tuple):
-                for f in fp:
-                    yield f
+            if isinstance(fp, (list, tuple)):
+                yield from fp
                 continue
             ma = isinstance(fp, str) and re.compile("(!\s*|)re:(.*)").match(fp)
             if isinstance(fp, type(re.compile(''))) or ma:
@@ -576,12 +568,12 @@ def feature_needs(*feas):
                     mag = ma.groups()
                     fp = re.compile(mag[1])
                     neg = bool(mag[0])
-                for f in list(fmap.keys()) + [ 'has_' + a for a in Fuse._attrs ]:
+                for f in list(fmap.keys()) + [f'has_{a}' for a in Fuse._attrs]:
                     if neg != bool(re.search(fp, f)):
                         yield f
                 continue
             ma = re.compile("has_(.*)").match(fp)
-            if ma and ma.groups()[0] in Fuse._attrs and not fp in fmap:
+            if ma and ma.groups()[0] in Fuse._attrs and fp not in fmap:
                 yield 21
                 continue
             yield fmap[fp]
@@ -679,7 +671,10 @@ class Fuse(object):
 """)
 
         def malformed():
-            raise RuntimeError("malformatted fuse_python_api value " + repr(fuse_python_api))
+            raise RuntimeError(
+                f"malformatted fuse_python_api value {repr(fuse_python_api)}"
+            )
+
         if not isinstance(fuse_python_api, tuple):
             malformed()
         for i in fuse_python_api:
@@ -693,20 +688,20 @@ class Fuse(object):
 """)
 
         self.fuse_args = \
-            'fuse_args' in kw and kw.pop('fuse_args') or FuseArgs()
+                'fuse_args' in kw and kw.pop('fuse_args') or FuseArgs()
 
         if get_compat_0_1():
             return self.__init_0_1__(*args, **kw)
 
         self.multithreaded = True
 
-        if not 'usage' in kw:
+        if 'usage' not in kw:
             kw['usage'] = self.fusage
-        if not 'fuse_args' in kw:
+        if 'fuse_args' not in kw:
             kw['fuse_args'] = self.fuse_args
         kw['fuse'] = self
         parserclass = \
-          'parser_class' in kw and kw.pop('parser_class') or FuseOptParse
+              'parser_class' in kw and kw.pop('parser_class') or FuseOptParse
 
         self.parser = parserclass(*args, **kw)
         self.methproxy = self.Methproxy()
@@ -733,12 +728,13 @@ class Fuse(object):
         if get_compat_0_1():
             args = self.main_0_1_preamble()
 
-        d = {'multithreaded': self.multithreaded and 1 or 0}
-        d['fuse_args'] = args or self.fuse_args.assemble()
-
+        d = {
+            'multithreaded': self.multithreaded and 1 or 0,
+            'fuse_args': args or self.fuse_args.assemble(),
+        }
         for t in 'file_class', 'dir_class':
             if hasattr(self, t):
-                getattr(self.methproxy, 'set_' + t)(getattr(self,t))
+                getattr(self.methproxy, f'set_{t}')(getattr(self,t))
 
         for a in self._attrs:
             b = a
@@ -746,7 +742,7 @@ class Fuse(object):
                 b = self.compatmap[a]
             if hasattr(self, b):
                 c = ''
-                if get_compat_0_1() and hasattr(self, a + '_compat_0_1'):
+                if get_compat_0_1() and hasattr(self, f'{a}_compat_0_1'):
                     c = '_compat_0_1'
                 d[a] = ErrnoWrapper(self.lowwrap(a + c))
 
@@ -796,7 +792,7 @@ class Fuse(object):
     def NotifyPoll(self, pollhandle):
         return FuseNotifyPoll(pollhandle)
 
-    def fuseoptref(cls):
+    def fuseoptref(self):
         """
         Find out which options are recognized by the library.
         Result is a `FuseArgs` instance with the list of supported
@@ -809,14 +805,14 @@ class Fuse(object):
         pr, pw = os.pipe()
         pid = os.fork()
         if pid == 0:
-             os.dup2(pw, 2)
-             os.close(pr)
+            os.dup2(pw, 2)
+            os.close(pr)
 
-             fh = cls()
-             fh.fuse_args = FuseArgs()
-             fh.fuse_args.setmod('showhelp')
-             fh.main()
-             sys.exit()
+            fh = self()
+            fh.fuse_args = FuseArgs()
+            fh.fuse_args.setmod('showhelp')
+            fh.main()
+            sys.exit()
 
         os.close(pw)
 
@@ -824,20 +820,19 @@ class Fuse(object):
         ore = re.compile("-o\s+([\w\[\]]+(?:=\w+)?)")
         fpr = os.fdopen(pr)
         for l in fpr:
-             m = ore.search(l)
-             if m:
-                 o = m.groups()[0]
-                 oa = [o]
-                 # try to catch two-in-one options (like "[no]foo")
-                 opa = o.split("[")
-                 if len(opa) == 2:
-                    o1, ox = opa
-                    oxpa = ox.split("]")
-                    if len(oxpa) == 2:
-                       oo, o2 = oxpa
-                       oa = [o1 + o2, o1 + oo + o2]
-                 for o in oa:
-                     fa.add(o)
+            if m := ore.search(l):
+                o = m.groups()[0]
+                oa = [o]
+                # try to catch two-in-one options (like "[no]foo")
+                opa = o.split("[")
+                if len(opa) == 2:
+                   o1, ox = opa
+                   oxpa = ox.split("]")
+                   if len(oxpa) == 2:
+                      oo, o2 = oxpa
+                      oa = [o1 + o2, o1 + oo + o2]
+                for o in oa:
+                    fa.add(o)
 
         fpr.close()
         return fa
@@ -867,7 +862,7 @@ class Fuse(object):
 
             def setter(self, xcls):
 
-                setattr(self, type + '_class', xcls)
+                setattr(self, f'{type}_class', xcls)
 
                 for m in inits:
                     self.mdic[m] = xcls
@@ -876,7 +871,7 @@ class Fuse(object):
                     if hasattr(xcls, m):
                         self.mdic[m] = self.proxyclass(m)
 
-            setattr(cls, 'set_' + type + '_class', setter)
+            setattr(cls, f'set_{type}_class', setter)
 
         _add_class_type = classmethod(_add_class_type)
 
@@ -889,11 +884,10 @@ class Fuse(object):
 
     def __getattr__(self, meth):
 
-        m = self.methproxy(meth)
-        if m:
+        if m := self.methproxy(meth):
             return m
 
-        raise AttributeError("Fuse instance has no attribute '%s'" % meth)
+        raise AttributeError(f"Fuse instance has no attribute '{meth}'")
 
 
 
@@ -911,19 +905,10 @@ class Fuse(object):
         multithreaded = 0
 
         # default attributes
-        if args == ():
-            # there is a self.optlist.append() later on, make sure it won't
-            # bomb out.
-            self.optlist = []
-        else:
-            self.optlist = args
+        self.optlist = args or []
         self.optdict = kw
 
-        if len(self.optlist) == 1:
-            self.mountpoint = self.optlist[0]
-        else:
-            self.mountpoint = None
-
+        self.mountpoint = self.optlist[0] if len(self.optlist) == 1 else None
         # grab command-line arguments, if any.
         # Those will override whatever parameters
         # were passed to __init__ directly.

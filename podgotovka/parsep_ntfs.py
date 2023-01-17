@@ -21,13 +21,14 @@ class Ntfs():
         self.sector_sizeH, self.cluster_sizeB, self.mftQ, self.mft_mirrQ, self.mftsizeB = unpack("=11xHB34xQQB", self.data[:65])
         self.mft_addr      = hex(self.sector_size*self.cluster_size*self.mft)
         self.mft_mirr_addr = hex(self.sector_size*self.cluster_size*self.mft_mirr)
-        
+
         self.mft_size = bin(self.mft_size)[2:]
-        invert_mftsize = ''
-        for i in range(0, len(self.mft_size)):
-            invert_mftsize += '0' if (self.mft_size[i]=='1') else '1'
+        invert_mftsize = ''.join(
+            '0' if (self.mft_size[i] == '1') else '1'
+            for i in range(len(self.mft_size))
+        )
         self.mft_size = 2**(int(invert_mftsize, base=2) + 1)
-        
+
         print(f"""   [!] Образ носителя: {self.image}
    [+] |_Размер сектора (байты): {self.sector_size}
    [+] |_Размер кластера (сектор): {self.cluster_size}
@@ -35,10 +36,10 @@ class Ntfs():
    [+] |_Адрес $MFTMirr: {self.mft_mirr_addr}
    [+] |_Размер одной таблицы MFT (сектора): {self.mft_size}
             """)
-        
+
         self.fd.seek(int(self.mft_addr, 16), 0)
         self.data = self.fd.read(self.mft_size)
-        
+
         _type, offset_arr_markers, size_arr_markers, index_LSN, sequence_number, count_links, offset_atr, flag, real_size_entry, allocated_size_entry, address_base_entry, index_new_atr, index_entry = unpack("=0xIHHQHHHHIIQH2xI", self.data[:48])
 
         if hex(_type) == '0x454c4946':
@@ -51,7 +52,7 @@ class Ntfs():
             _type = "CHKD"
         elif hex(_type) == '0x44414142':
             _type = "BAAD"
-            
+
         print(f"""   [!] таблица MFT
    [+] |_Тип записи: {_type}
    [+] |_Смещение массива маркеров: {offset_arr_markers}

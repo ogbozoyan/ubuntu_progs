@@ -75,8 +75,9 @@ class simple_fuse(Fuse):
         
 if __name__ == '__main__':
     driver = simple_fuse(
-        version = "%prog " + fuse.__version__,
-        usage=Fuse.fusage,dash_s_do="setsingle"
+        version=f"%prog {fuse.__version__}",
+        usage=Fuse.fusage,
+        dash_s_do="setsingle",
     )
     driver.parse(errex=1)
     driver.main("tree.json")

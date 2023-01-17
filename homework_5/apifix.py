@@ -62,11 +62,11 @@ def library(author: str, work: str, begin: int = None, end:int = None):
     item = Items()
     for key in works.keys():
         if author == key:
-            for title in  works[key].keys():
+            for title in works[key].keys():
                 if title == work:
-                   item.file_init(works[key][title][begin:end], work + ".txt")
-                   json_compatible_item_data = jsonable_encoder(item)
-                   return JSONResponse(content=json_compatible_item_data)
+                    item.file_init(works[key][title][begin:end], f"{work}.txt")
+                    json_compatible_item_data = jsonable_encoder(item)
+                    return JSONResponse(content=json_compatible_item_data)
     raise HTTPException(status_code = 404, detail = "Work not found")
 
 

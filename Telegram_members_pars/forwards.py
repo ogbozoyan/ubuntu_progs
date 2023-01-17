@@ -41,19 +41,18 @@ async def main():
                     df = pd.DataFrame(l, columns = ['To','From'])
 
                     name_clean = channel_name
-                    alphanumeric = ""
-
-                    for character in name_clean:
-                        if character.isalnum():
-                            alphanumeric += character
-
+                    alphanumeric = "".join(
+                        character
+                        for character in name_clean
+                        if character.isalnum()
+                    )
                     directory = './edgelists/'
                     try:
                         os.makedirs(directory)
                     except FileExistsError:
                         pass
 
-                    file = './edgelists/'+ alphanumeric + '_edgelist.csv'
+                    file = f'./edgelists/{alphanumeric}_edgelist.csv'
 
                     with open(file,'w+') as f:
                         df.to_csv(f)
@@ -74,12 +73,10 @@ if next1 == 'y':
     print('Scraping forwards from channels discovered in', channel_name, '...')
     async def new_main():
         name_clean = channel_name
-        alphanumeric = ""
-
-        for character in name_clean:
-            if character.isalnum():
-                alphanumeric += character
-        df = pd.read_csv('./edgelists/'+ alphanumeric + '_edgelist.csv')
+        alphanumeric = "".join(
+            character for character in name_clean if character.isalnum()
+        )
+        df = pd.read_csv(f'./edgelists/{alphanumeric}_edgelist.csv')
         df = df.From.unique()
         l = []
         for i in df:
@@ -94,19 +91,18 @@ if next1 == 'y':
                             df = pd.DataFrame(l, columns = ['To','From'])
 
                             name_clean = channel_name
-                            alphanumeric = ""
-
-                            for character in name_clean:
-                                if character.isalnum():
-                                    alphanumeric += character
-
+                            alphanumeric = "".join(
+                                character
+                                for character in name_clean
+                                if character.isalnum()
+                            )
                             directory = './edgelists/'
                             try:
                                 os.makedirs(directory)
                             except FileExistsError:
                                 pass
 
-                            file1 = './edgelists/'+ alphanumeric + '_net.csv'
+                            file1 = f'./edgelists/{alphanumeric}_net.csv'
 
                             with open(file1,'w+') as f:
                                 df.to_csv(f)
@@ -129,9 +125,6 @@ again = input('Do you want to scrape more chats? (y/n)')
 if again == 'y':
     print('Restarting...')
     exec(open("forwards.py").read())
-else:
-    pass
-
 launcher = input('Do you want to return to the launcher? (y/n)')
 if launcher == 'y':
     print('Restarting...')
