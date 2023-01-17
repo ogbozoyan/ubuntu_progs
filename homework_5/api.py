@@ -9,7 +9,7 @@ def index_page():
 
 @app.get("/hello{name}")
 def func_hello(name):
-	return "Hi"+name
+	return f"Hi{name}"
 
 @app.get("/libary")
 def libary_page():
@@ -21,7 +21,6 @@ def Gregory_books():
 
 @app.get("/libary/Gregory/esli")
 def Gregory_books_esli(begin = 1 ,end = 38):
-	buf = ''
 	begin = int(input("Begin: "))
 	end = int(input("End: "))
 	text = { 1 :"Если был бы я богатым,",
@@ -62,9 +61,7 @@ def Gregory_books_esli(begin = 1 ,end = 38):
 			36: "Та его я пролил в травы,",
 			37: "Не мечтая о богатстве."
 			}
-	for i in range(1,end-begin):
-		buf += str(text.get(i))
-	return (buf)
+	return ''.join(str(text.get(i)) for i in range(1,end-begin))
 @app.get("/libary/Gregory/jeny")
 def Gregory_books_jeny(begin =1 ,end = 21):
 	text = {1:"Не паситесь в офсайте,",
@@ -88,12 +85,9 @@ def Gregory_books_jeny(begin =1 ,end = 21):
 		19:"От морей не убудет,",
 		20:"пока у морей — берега."
 		}
-	buf = ''
 	begin = int(input("Begin: "))
 	end = int(input("End: "))
-	for i in range(1,end-begin):
-		buf += str(text.get(i))
-	return (buf)
+	return ''.join(str(text.get(i)) for i in range(1,end-begin))
 @app.get("/libary/Gregory/zemnoy")
 def Gregory_books_zemnoy(begin = 1 , end = 20):
 	text = {1:"Земной не знает, что пребудет там,",
@@ -116,12 +110,9 @@ def Gregory_books_zemnoy(begin = 1 , end = 20):
 			18:"Под окнами, у стражи на виду,",
 			19:"тень, удлинившись, сделалась крылатой."
 			}
-	buf = ''
 	begin = int(input("Begin: "))
 	end = int(input("End: "))
-	for i in range(1,end-begin):
-		buf += str(text.get(i))
-	return (buf)		
+	return ''.join(str(text.get(i)) for i in range(1,end-begin))		
 
 @app.get("/libary/Vardan")
 def Vardan_books():
@@ -142,15 +133,11 @@ def Vardan_books_arbuz(begin = 1 , end = 13):
 	12:"и звал зайца: «Эй, ослик индийский, горе мне, не убегай, пожалей ты меня, вернись!»."
 
 	}
-	buf = ''
 	begin = int(input("Begin: "))
 	end = int(input("End: "))
-	for i in range(1,end-begin):
-		buf += str(text.get(i))
-	return (buf)
+	return ''.join(str(text.get(i)) for i in range(1,end-begin))
 @app.get("/libary/Vardan/lion")
 def Vardan_books_lion(begin = 1 , end = 11):
-	buf = ''
 	#P.S произведение реально классное , советую прочитать :)
 	text = {1:"Сидел могучий лев на дороге, а по ней пробегали всевозможные звери. Лев ",
 			2:"спросил их: «От кого в ужасном страхе бежите?» И они сказали: «Беги и ты, потому что идет человек.»", 
@@ -164,9 +151,7 @@ def Vardan_books_lion(begin = 1 , end = 11):
 		    10:"«Если ты человек, бей сильней и нещадней по ребрам моим, ибо этакой дурьей голове так оно и следует»."}
 	begin = int(input("Begin: "))
 	end = int(input("End: "))
-	for i in range(1,end-begin):
-		buf += str(text.get(i))
-	return (buf)
+	return ''.join(str(text.get(i)) for i in range(1,end-begin))
 @app.get("/libary/Vardan/warrior")
 def Vardan_books_warrior(begin = 1 , end = 5 ):
 	#Тоже классное произведение
@@ -176,12 +161,9 @@ def Vardan_books_warrior(begin = 1 , end = 5 ):
 	3:"И сказал мудрый воин:",
 	4:"«О, неразумный, я на войну иду не бежать, а стоять сражаться и побеждать!»."
 	}
-	buf = ''
 	begin = int(input("Begin: "))
 	end = int(input("End: "))
-	for i in range(1,end-begin):
-		buf += str(text.get(i))
-	return (buf)
+	return ''.join(str(text.get(i)) for i in range(1,end-begin))
 
 @app.get("/libary/Paryer")
 def Paryer_books():
@@ -201,12 +183,9 @@ def Paryer_books_tebya(begin = 1 ,end = 13):
 			11:"Тебя вот так имея – не имея, и есть та причина,",
 			12:"Что потерял я свою гордость… победителя…"
 			}
-	buf = ''
 	begin = int(input("Begin: "))
 	end = int(input("End: "))
-	for i in range(1,end-begin):
-		buf += str(text.get(i))
-	return (buf)
+	return ''.join(str(text.get(i)) for i in range(1,end-begin))
 @app.get("/libary/Paryer/ludi")
 def Paryer_books_ludi(begin = 1, end = 60):
 	text = {1:"Есть люди, которые мир оседлав,",
@@ -269,12 +248,9 @@ def Paryer_books_ludi(begin = 1, end = 60):
 			58:"А есть, кто по жизни пешком прошагав,",
 			59:"Всю тяжесть, сгорбившись, несут на спине…"
 			}
-	buf = ''
 	begin = int(input("Begin: "))
 	end = int(input("End: "))
-	for i in range(1,end-begin):
-		buf += str(text.get(i))
-	return (buf)
+	return ''.join(str(text.get(i)) for i in range(1,end-begin))
 @app.get("/libary/Paryer/soj")
 def Paryer_books_soj(begin = 1 , end = 13):
 	text = {1:"Я в жизни всем помог, себе я не помог.",
@@ -290,12 +266,9 @@ def Paryer_books_soj(begin = 1 , end = 13):
 			11:"Всё в жизни расточив, зачем я не привык",
 			12:"Выпрашивать любовь, скупясь, как ростовщик?"
 		}
-	buf = ''
 	begin = int(input("Begin: "))
 	end = int(input("End: "))
-	for i in range(1,end-begin):
-		buf += str(text.get(i))
-	return (buf)
+	return ''.join(str(text.get(i)) for i in range(1,end-begin))
 
 if __name__ == "__main__":
 	uvicorn.run(app)

@@ -8,7 +8,7 @@ li = ['Batch chat archiver','Scrape group members','Scrape forwarded messages in
 
 def display(li):
     for idx, tables in enumerate(li):
-        print("%s. %s" % (idx+1, tables))
+        print(f"{idx + 1}. {tables}")
 
 def get_list(li):
     choose = int(input("\nPick a number:"))-1

@@ -6,11 +6,12 @@
 mkdosfs floppy.img -C 1440
 """
 
+
 import sys
 from struct import unpack
 
 if len(sys.argv) != 2:
-    print("Использовать: " + sys.argv[0] + " <имя образа>")
+    print(f"Использовать: {sys.argv[0]} <имя образа>")
     exit(0)
 
 # Открываем файл образа
@@ -20,7 +21,7 @@ with open(sys.argv[1], 'rb') as fd:
     if not data:
         print("Ошибка чтения файла")
         exit(-1)
-        
+
     # Выделяем основные элементы
     sector_size, cluster_size, reserv, fat_count, root_size, fat_size, sig = unpack("=11xHBHBH3xH486xH", data)
 
@@ -28,7 +29,7 @@ with open(sys.argv[1], 'rb') as fd:
     if sig != 0xAA55:
         print("Неверная сигнатура загрузочного сектора")
         exit(-2)
-        
+
     # Вычисляем смещение до корневой директории
     root_offset = (fat_count * fat_size + reserv) * sector_size
 

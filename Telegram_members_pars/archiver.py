@@ -23,8 +23,6 @@ if not client.is_user_authorized():
 chats = []
 last_date = None
 chunk_size = 200
-groups=[]
-
 result = client(GetDialogsRequest(
              offset_date=last_date,
              offset_id=0,
@@ -34,9 +32,7 @@ result = client(GetDialogsRequest(
          ))
 chats.extend(result.chats)
 
-for chat in chats:
-    groups.append(chat)
-
+groups = list(chats)
 print('Archiving chats...')
 
 #to_archive.csv to be replaced with your list of channels, must have "To" as a column header#
@@ -51,12 +47,10 @@ async def main():
         try:
             async for message in client.iter_messages(i):
                 i_clean = i
-                alphanumeric = ""
-
-                for character in i_clean:
-                    if character.isalnum():
-                        alphanumeric += character
-                directory = './' + alphanumeric
+                alphanumeric = "".join(
+                    character for character in i_clean if character.isalnum()
+                )
+                directory = f'./{alphanumeric}'
                 try:
                     os.makedirs(directory)
                 except FileExistsError:
@@ -76,8 +70,8 @@ async def main():
 
                 name = get_display_name(message.sender)
                 nameID = message.from_id
-                date = str(message.date.year) + "/" + str(message.date.month) + "/" + str(message.date.day)
-                time = str(message.date.hour) + ":" + str(message.date.minute)
+                date = f"{str(message.date.year)}/{str(message.date.month)}/{str(message.date.day)}"
+                time = f"{str(message.date.hour)}:{str(message.date.minute)}"
                 timestamp = date + ", " + time
                 #print(message.id,' ',name,':',message.text)
                 l.append([i,message.id,name,nameID,message.text,timestamp])
@@ -104,9 +98,6 @@ again = input('Do you want to archive more groups? (y/n)')
 if again == 'y':
     print('Restarting...')
     exec(open("archiver.py").read())
-else:
-    pass
-
 launcher = input('Do you want to return to the launcher? (y/n)')
 if launcher == 'y':
     print('Restarting...')

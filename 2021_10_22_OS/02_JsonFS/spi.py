@@ -23,11 +23,9 @@ class default_stat(fuse.Stat):
 
 class simple_fuse(Fuse):
     def getentry(self, path):
-        response = req.get("http://127.0.0.1:8000/jlibrary" + path)
+        response = req.get(f"http://127.0.0.1:8000/jlibrary{path}")
         data = json.loads(response.content)
-        if (response.status_code != 200) or (data == '404'):
-            return None
-        return data
+        return None if (response.status_code != 200) or (data == '404') else data
         
     def getattr(self, path):
         if path in ['.','..'] :
@@ -69,8 +67,9 @@ class simple_fuse(Fuse):
         
 if __name__ == '__main__':
     driver = simple_fuse(
-        version = "%prog " + fuse.__version__,
-        usage=Fuse.fusage,dash_s_do="setsingle"
+        version=f"%prog {fuse.__version__}",
+        usage=Fuse.fusage,
+        dash_s_do="setsingle",
     )
-    driver.parse(errex=1) 
+    driver.parse(errex=1)
     driver.main()

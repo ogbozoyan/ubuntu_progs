@@ -42,15 +42,12 @@ for chat in chats:
         continue
 print('Choose a group to scrape members from:')
 
-i = 0
-for g in groups:
-    print(str(i) + '- ' + g.title)
-    i+=1
-
+for i, g in enumerate(groups):
+    print(f'{str(i)}- {g.title}')
 g_index = input("Enter a Number: ")
 target_group = groups[int(g_index)]
 
-print('Fetching members for' + target_group.title + '...')
+print(f'Fetching members for{target_group.title}...')
 all_participants = []
 all_participants = client.get_participants(target_group, aggressive=True)
 print(all_participants)
@@ -62,13 +59,10 @@ except FileExistsError:
     pass
 
 name_clean = target_group.title
-alphanumeric = ""
-
-for character in name_clean:
-    if character.isalnum():
-        alphanumeric += character
-
-file_name = "./memberlists/"+alphanumeric+"_members.csv"
+alphanumeric = "".join(
+    character for character in name_clean if character.isalnum()
+)
+file_name = f"./memberlists/{alphanumeric}_members.csv"
 value_users = all_participants.total
 print('Writing in to file...')
 with open(file_name,"w",encoding='UTF-8') as f:
@@ -76,23 +70,11 @@ with open(file_name,"w",encoding='UTF-8') as f:
     writer.writerow(['Количество пользователей' + ' '+ str(value_users)])
     writer.writerow(['||Логин||'+'||Имя||'+'||ID||'+'||phone||'])#+'|Название Чата|'+'|Чат ID|'
     for user in all_participants:
-        if user.username:
-            username= user.username
-        else:
-            username= ""
-        if user.first_name:
-            first_name= user.first_name
-        else:
-            first_name= ""
-        if user.last_name:
-            last_name= user.last_name
-        else:
-            last_name= ""
-        if user.phone:
-            phone_num = user.phone
-        else:
-            phone_num = ""
-        name= (first_name + ' ' + last_name).strip()
+        username = user.username or ""
+        first_name = user.first_name or ""
+        last_name = user.last_name or ""
+        phone_num = user.phone or ""
+        name = f'{first_name} {last_name}'.strip()
         writer.writerow(['||'+"Login:"+str(username)+'||'+"Name:"+str(name)+'||'+"ID:"+str(user.id)+'||'+"||"+'+'+str(phone_num)]) #+'|'+str(target_group.title)+'|'+str(target_group.id)+'|'
 
 print('Done.')
@@ -101,9 +83,6 @@ again = input('Again? (y/n)')
 if again == 'y':
     print('Restarting...')
     exec(open("members.py").read())
-else:
-    pass
-
 launcher = input('Do you want to return to the launcher? (y/n)')
 if launcher == 'y':
     print('Restarting...')
